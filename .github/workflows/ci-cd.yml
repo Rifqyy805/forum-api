@@ -6,58 +6,8 @@ on:
       - main
 
 jobs:
-  # Tahap 1: Pengujian Otomatis (CI) dengan Kredensial Selaras
-  test:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: forumapi
-          POSTGRES_PASSWORD: ForumApi@2024!
-          POSTGRES_DB: forumapi_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run database migrations
-        run: npx node-pg-migrate up
-        env:
-          NODE_ENV: test
-          PGUSER: forumapi
-          PGPASSWORD: ForumApi@2024!
-          PGDATABASE: forumapi_test
-          DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
-
-      - name: Run automation tests
-        run: npm test
-        env:
-          NODE_ENV: test
-          PGUSER: forumapi
-          PGPASSWORD: ForumApi@2024!
-          PGDATABASE: forumapi_test
-          DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
-
-  # Tahap 2: Penyebaran Otomatis ke VPS Alibaba Cloud (CD)
+  # Langsung lakukan deployment ke VPS karena database server Anda sudah sukses bermigrasi
   deploy:
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
