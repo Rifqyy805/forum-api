@@ -2,9 +2,10 @@ import GetThreadDetailUseCase from '../GetThreadDetailUseCase.js';
 import ThreadRepository from '../../../Domains/threads/ThreadRepository.js';
 import CommentRepository from '../../../Domains/comments/CommentRepository.js';
 import ReplyRepository from '../../../Domains/replies/ReplyRepository.js';
+import LikeRepository from '../../../Domains/likes/LikeRepository.js';
 
 describe('GetThreadDetailUseCase', () => {
-  it('should orchestrate get thread detail with replies correctly', async () => {
+  it('should orchestrate get thread detail with replies and likeCount correctly', async () => {
     const threadId = 'thread-123';
 
     const mockThread = {
@@ -38,31 +39,34 @@ describe('GetThreadDetailUseCase', () => {
         username: 'johndoe',
         date: '2021-08-08T07:30:00.000Z',
         content: 'balasan dihapus',
-        is_delete: true,   // ← branch true
+        is_delete: true,
       },
       {
         id: 'reply-222',
         username: 'dicoding',
         date: '2021-08-08T07:35:00.000Z',
         content: 'sebuah balasan',
-        is_delete: false,  // ← branch false
+        is_delete: false,
       },
     ];
 
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     mockThreadRepository.getThreadById = vi.fn().mockResolvedValue({ ...mockThread });
     mockCommentRepository.getCommentsByThreadId = vi.fn().mockResolvedValue(mockComments);
     mockReplyRepository.getRepliesByCommentId = vi.fn()
       .mockResolvedValueOnce(mockRepliesComment111)
       .mockResolvedValueOnce([]);
+    mockLikeRepository.getLikeCount = vi.fn().mockResolvedValue(2);
 
     const useCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     const thread = await useCase.execute(threadId);
@@ -70,9 +74,11 @@ describe('GetThreadDetailUseCase', () => {
     expect(thread.comments[0].replies[0].content).toBe('**balasan telah dihapus**');
     expect(thread.comments[0].replies[1].content).toBe('sebuah balasan');
     expect(thread.comments[0].content).toBe('sebuah comment');
+    expect(thread.comments[0].likeCount).toBe(2);
     expect(thread.comments[1].content).toBe('**komentar telah dihapus**');
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
     expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledTimes(2);
+    expect(mockLikeRepository.getLikeCount).toHaveBeenCalledTimes(2);
   });
 });

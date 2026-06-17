@@ -56,4 +56,14 @@ describe('LikeRepositoryPostgres', () => {
     // Assert
     expect(isLikeExist).toBe(false);
   });
+
+  it('should return like count correctly', async () => {
+    const fakeIdGenerator = () => '123';
+    const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, fakeIdGenerator);
+
+    await likeRepositoryPostgres.addLike('comment-123', 'user-123');
+    const count = await likeRepositoryPostgres.getLikeCount('comment-123');
+
+    expect(count).toBe(1);
+    });
 });

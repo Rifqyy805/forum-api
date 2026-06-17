@@ -260,6 +260,19 @@ container.register([
       ],
     },
   },
+  {
+    key: GetThreadDetailUseCase.name,
+    Class: GetThreadDetailUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        { name: 'threadRepository', internal: ThreadRepository.name },
+        { name: 'commentRepository', internal: CommentRepository.name },
+        { name: 'replyRepository', internal: ReplyRepository.name },
+        { name: 'likeRepository', internal: LikeRepository.name }, // ← tambahkan ini
+      ],
+    },
+  },
 ]);
 
 export default container;

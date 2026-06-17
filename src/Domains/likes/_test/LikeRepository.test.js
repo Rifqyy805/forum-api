@@ -1,14 +1,11 @@
-import { describe, it, expect } from 'vitest';
 import LikeRepository from '../LikeRepository.js';
 
 describe('LikeRepository interface', () => {
-  it('should throw error when invoke abstract behavior', async () => {
-    // Arrange
-    const likeRepository = new LikeRepository();
-
-    // Action & Assert
-    await expect(likeRepository.addLike('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(likeRepository.checkLikeExist('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(likeRepository.deleteLike('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  it('should throw error when invoke unimplemented method', async () => {
+    const repo = new LikeRepository();
+    await expect(repo.checkLikeExist('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(repo.addLike('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(repo.deleteLike('', '')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(repo.getLikeCount('')).rejects.toThrowError('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
