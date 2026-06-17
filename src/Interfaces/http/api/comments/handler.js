@@ -7,6 +7,7 @@ class CommentsHandler {
     this._container = container;
     this.postCommentHandler = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
+    this.putLikeCommentHandler = this.putLikeCommentHandler.bind(this);
   }
 
   async postCommentHandler(req, res, next) {
@@ -34,17 +35,7 @@ class CommentsHandler {
       next(error);
     }
   }
-  async putLikeCommentHandler(request, h) {
-    const { id: credentialId } = request.auth.credentials;
-    const { threadId, commentId } = request.params;
-    
-    const toggleLikeCommentUseCase = this._container.getInstance(ToggleLikeCommentUseCase.name);
-    await toggleLikeCommentUseCase.execute(threadId, commentId, credentialId);
 
-    return h.response({
-      status: 'success',
-    });
-  }
   async putLikeCommentHandler(req, res, next) {
     try {
       // Mengambil ID user dari middleware autentikasi Express Anda

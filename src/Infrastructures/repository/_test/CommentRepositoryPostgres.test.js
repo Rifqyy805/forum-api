@@ -103,4 +103,18 @@ describe('CommentRepositoryPostgres', () => {
       expect(comments[1].id).toBe('comment-222');
     });
   });
+
+  describe('checkAvailabilityComment', () => {
+    it('should throw NotFoundError when comment not found', async () => {
+      const repo = new CommentRepositoryPostgres(pool, () => '123');
+      await expect(repo.checkAvailabilityComment('comment-tidak-ada'))
+        .rejects.toThrowError(NotFoundError);
+    });
+
+    it('should not throw when comment exists', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+      const repo = new CommentRepositoryPostgres(pool, () => '123');
+      await expect(repo.checkAvailabilityComment('comment-123')).resolves.not.toThrow();
+    });
+  });
 });
