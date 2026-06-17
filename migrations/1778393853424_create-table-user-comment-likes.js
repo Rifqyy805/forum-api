@@ -1,8 +1,8 @@
-exports.up = (pgm) => {
+export const up = (pgm) => {
   pgm.createTable('user_comment_likes', {
     id: {
       type: 'VARCHAR(50)',
-      primaryKey: true, // Diubah menjadi camelCase yang valid bagi JavaScript dan node-pg-migrate
+      primaryKey: true,
     },
     user_id: {
       type: 'VARCHAR(50)',
@@ -18,12 +18,11 @@ exports.up = (pgm) => {
     },
   });
 
-  // Membuat batasan unik agar satu user hanya bisa menyukai satu komentar satu kali saja
   pgm.addConstraint('user_comment_likes', 'unique_user_comment', {
     unique: ['user_id', 'comment_id'],
   });
 };
 
-exports.down = (pgm) => {
+export const down = (pgm) => {
   pgm.dropTable('user_comment_likes');
 };

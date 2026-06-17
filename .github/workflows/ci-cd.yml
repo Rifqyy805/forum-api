@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-  # Langsung lakukan deployment ke VPS karena database server Anda sudah sukses bermigrasi
   deploy:
     runs-on: ubuntu-latest
 

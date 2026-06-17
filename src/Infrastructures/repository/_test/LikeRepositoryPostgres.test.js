@@ -1,24 +1,31 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import pool from '../../database/postgres/pool.js'; // sesuaikan path ke pool database Anda
+import pool from '../../database/postgres/pool.js'; // Sesuaikan dengan path pool Anda
 import LikeRepositoryPostgres from '../LikeRepositoryPostgres.js';
 import UsersTableTestHelper from '../../../../tests/UsersTableTestHelper.js';
 import ThreadsTableTestHelper from '../../../../tests/ThreadsTableTestHelper.js';
 import CommentsTableTestHelper from '../../../../tests/CommentsTableTestHelper.js';
+import LikesTableTestHelper from '../../../../tests/LikesTableTestHelper.js'; // Impor helper baru
 
 describe('LikeRepositoryPostgres', () => {
   beforeEach(async () => {
-    // Siapkan data dummy user, thread, dan comment agar foreign key tidak error saat test database
+    // Jalankan pembersihan awal untuk memastikan container bersih sebelum diisi data dummy
+    await LikesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+
+    // Siapkan data dummy berurutan dari induk ke anak (User -> Thread -> Comment)
     await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
     await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
     await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
   });
 
   afterEach(async () => {
+    // PENTING: Urutan hapus harus dari ANAK/TABEL RELASI terlebih dahulu, baru ke induknya!
+    await LikesTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
-    // Buat fungsi cleanTable di helper jika diperlukan, atau jalankan query TRUNCATE langsung
-    await pool.query('TRUNCATE user_comment_likes CASCADE');
   });
 
   it('should persist add like and check its existence correctly', async () => {
@@ -38,6 +45,8 @@ describe('LikeRepositoryPostgres', () => {
     // Arrange
     const fakeIdGenerator = () => '123';
     const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, fakeIdGenerator);
+    
+    // Masukkan data like awal melalui repository
     await likeRepositoryPostgres.addLike('comment-123', 'user-123');
 
     // Action
