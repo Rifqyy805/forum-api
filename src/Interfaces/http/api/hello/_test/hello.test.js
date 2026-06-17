@@ -1,5 +1,5 @@
-describe('Hello', () => {
-  it('should pass', () => {
-    expect(true).toBe(true); // fix
+describe('Hello World', () => {
+  it('should fail intentionally for CI demo', () => {
+    expect(true).toBe(false);
   });
 });
