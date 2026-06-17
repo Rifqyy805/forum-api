@@ -34,9 +34,9 @@ const createServer = async (container) => {
 
   app.use('/users', users(container));
   app.use('/authentications', authentications(container));
-  app.use('/threads', threadLimiter, threads(container, authenticateToken));
-  app.use('/threads/:threadId/comments', threadLimiter, comments(container, authenticateToken));
-  app.use('/threads/:threadId/comments/:commentId/replies', threadLimiter, replies(container, authenticateToken));
+  app.use('/threads', threads(container, authenticateToken));
+  app.use('/threads/:threadId/comments', comments(container, authenticateToken));
+  app.use('/threads/:threadId/comments/:commentId/replies', replies(container, authenticateToken));
 
   app.use((error, req, res, next) => {
     const translatedError = DomainErrorTranslator.translate(error);
