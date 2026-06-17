@@ -1,5 +1,6 @@
 import AddCommentUseCase from '../../../../Applications/use_case/AddCommentUseCase.js';
 import DeleteCommentUseCase from '../../../../Applications/use_case/DeleteCommentUseCase.js';
+import ToggleLikeCommentUseCase from '../../../../Applications/use_case/ToggleLikeCommentUseCase.js';
 
 class CommentsHandler {
   constructor(container) {
@@ -31,6 +32,36 @@ class CommentsHandler {
       res.status(200).json({ status: 'success' });
     } catch (error) {
       next(error);
+    }
+  }
+  async putLikeCommentHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const { threadId, commentId } = request.params;
+    
+    const toggleLikeCommentUseCase = this._container.getInstance(ToggleLikeCommentUseCase.name);
+    await toggleLikeCommentUseCase.execute(threadId, commentId, credentialId);
+
+    return h.response({
+      status: 'success',
+    });
+  }
+  async putLikeCommentHandler(req, res, next) {
+    try {
+      // Mengambil ID user dari middleware autentikasi Express Anda
+      const { id: credentialId } = req.user; 
+      const { threadId, commentId } = req.params;
+
+      // Panggil Use Case melalui Container Injection
+      const toggleLikeCommentUseCase = this._container.getInstance(ToggleLikeCommentUseCase.name);
+      await toggleLikeCommentUseCase.execute(threadId, commentId, credentialId);
+
+      // Kirim response sukses khas Express
+      return res.status(200).json({
+        status: 'success',
+      });
+    } catch (error) {
+      // Teruskan ke middleware error handling Express Anda jika terjadi kegagalan/404
+      next(error); 
     }
   }
 }
