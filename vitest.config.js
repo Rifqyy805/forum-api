@@ -1,8 +1,19 @@
 import { defineConfig } from 'vitest/config';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.test.env' });
 
 export default defineConfig({
   test: {
     globals: true,
-    setupFiles: ['dotenv/config'],
+    fileParallelism: false,
+    coverage: {
+      reporter: ['text', 'html'],
+      include: ['src/**'],
+      exclude: [
+        'src/app.js',
+        'src/Commons/config.js',
+      ],
+    },
   },
 });

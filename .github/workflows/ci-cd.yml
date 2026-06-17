@@ -1,0 +1,67 @@
+name: Continuous Integration & Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Tahap 1: Pengujian Otomatis (CI)
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: forumapi
+          POSTGRES_PASSWORD: ForumApi@2024!
+          POSTGRES_DB: forumapi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-size: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run database migrations
+        run: npm run migrate up
+        env:
+          DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
+
+      - name: Run automation tests
+        run: npm test
+        env:
+          DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
+
+  # Tahap 2: Penyebaran Otomatis ke VPS (CD)
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/apps/forum-api
+            git pull origin main
+            npm install
+            DATABASE_URL=postgres://forumapi:ForumApi%402024%21@localhost:5432/forumapi npm run migrate up
+            pm2 restart forum-api
