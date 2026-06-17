@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  # Tahap 1: Pengujian Otomatis (CI)
+  # Tahap 1: Pengujian Otomatis (CI) dengan Kredensial Selaras
   test:
     runs-on: ubuntu-latest
 
@@ -38,16 +38,24 @@ jobs:
         run: npm install
 
       - name: Run database migrations
-        run: npx node-pg-migrate-up
+        run: npx node-pg-migrate up
         env:
+          NODE_ENV: test
+          PGUSER: forumapi
+          PGPASSWORD: ForumApi@2024!
+          PGDATABASE: forumapi_test
           DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
 
       - name: Run automation tests
         run: npm test
         env:
+          NODE_ENV: test
+          PGUSER: forumapi
+          PGPASSWORD: ForumApi@2024!
+          PGDATABASE: forumapi_test
           DATABASE_URL: postgres://forumapi:ForumApi@localhost:5432/forumapi_test
 
-  # Tahap 2: Penyebaran Otomatis ke VPS (CD)
+  # Tahap 2: Penyebaran Otomatis ke VPS Alibaba Cloud (CD)
   deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -63,5 +71,5 @@ jobs:
             cd /home/apps/forum-api
             git pull origin main
             npm install
-            DATABASE_URL=postgres://forumapi:ForumApi%402024%21@localhost:5432/forumapi npm run migrate up
+            DATABASE_URL=postgres://forumapi:ForumApi%402024%21@localhost:5432/forumapi npx node-pg-migrate up
             pm2 restart forum-api
