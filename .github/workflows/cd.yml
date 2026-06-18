@@ -18,11 +18,11 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: |
-              ${{ secrets.VPS_SSH_KEY }} 
+          key: ${{ secrets.VPS_SSH_KEY }} 
           script: |
-            cd /home/apps/forum-api
-            git pull origin main
-            npm ci --omit=dev
-            npm run migrate up
-            pm2 restart forum-api
+            script: |
+                cd /home/apps/forum-api
+                git pull origin main
+                npm install
+                npm run migrate up
+                pm2 restart forum-api
