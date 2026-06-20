@@ -45,6 +45,13 @@ jobs:
           PGPASSWORD: postgres
           PGDATABASE: forumapi_test
           PGPORT: 5432
+        
+      - name: Grant database permissions
+        run: |
+          psql -h localhost -U postgres -d forumapi_test -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;"
+          psql -h localhost -U postgres -d forumapi_test -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;"
+        env:
+          PGPASSWORD: postgres
 
       - name: Run tests
         run: npm test
